@@ -13,7 +13,7 @@ class TestRestServer
     /**
      * Constructor.
      */
-    public function __construct($uri, $code, $headers = array(), $body = '')
+    public function __construct($uri, $code, $headers = array(), $body = '', $path_to_template = 'server_template.tpl')
     {
         $this->router_path = sys_get_temp_dir() . '/TestRestServer.php';
 
@@ -22,9 +22,15 @@ class TestRestServer
         $response['headers'] = $headers;
         $response['body'] = $body;
 
-        $loader = new \Twig_Loader_Filesystem(__DIR__);
+        if ($path_to_template == 'server_template.tpl') {
+            $template_dir = __DIR__;
+        } else {
+            $template_dir = dirname($path_to_template);
+        }
+
+        $loader = new \Twig_Loader_Filesystem($template_dir);
         $twig = new \Twig_Environment($loader);
-        $router_php_code = $twig->render('server_template.tpl', $response);
+        $router_php_code = $twig->render(basename($path_to_template), $response);
 
         file_put_contents($this->router_path, $router_php_code);
     }

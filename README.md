@@ -30,6 +30,8 @@ and within a composer.json file:
 
 ## Usage
 
+### A basic example
+
 ```php
 <?php
 
@@ -58,7 +60,6 @@ class ExampleTest extends \PHPUnit\Framework\TestCase
 
 ```
 PHPUnit 4.8.36-1-g18e5f52 by Sebastian Bergmann and contributors.
-
 .
 
 Time: 5.08 seconds, Memory: 7.25MB
@@ -66,6 +67,46 @@ Time: 5.08 seconds, Memory: 7.25MB
 OK (1 test, 2 assertions)
 ```
 
+### A more realistic example
+
+Testing classes that contain REST calls.
+
+
+## Using your own server templates
+
+If you pass in a full path to a Twig template as the fourth parameter to the TestRestServer(), that file will be used to return the HTTP responses:
+
+They are Twig templates that contain PHP code. You don't need to pass any variables into the template though.
+
+```php
+$this->server = new TestRestServer('/testing/foo', 201, array('X-Authorization-User: foo:bar'), 'Is this thing on?', $path_to_template);
+```
+
+This template doesn't need to use the first three parameters, although it can:
+
+```
+<?php
+
+// This is actually a Twig template with no Twig variables.
+
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    // Some logic goes here to generate the response code, body or headers based
+    // on $_SERVER variables.
+
+    http_response_code(200);
+    header("Content-Type: application/json");
+    print json_encode($body);
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Some logic goes here to generate the response code, body or headers based
+    // on $_SERVER variables.
+
+    http_response_code(201);
+    header("Content-Type: application/json");
+    print json_encode($body);
+}
+```
 
 ## Maintainer
 
