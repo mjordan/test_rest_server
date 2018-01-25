@@ -10,7 +10,8 @@ class ExampleTest extends \PHPUnit\Framework\TestCase
 {
     public function testExample()
     {
-        $this->server = new TestRestServer('/testing/foo', 201, array('X-Authorization-User: foo:bar'), 'Is this thing on?');
+        $headers = array('X-Authorization-User: foo:bar');
+        $this->server = new TestRestServer('/testing/foo', 201, $headers, 'Is this thing on?');
         $this->server->start();
 
         $client = new \GuzzleHttp\Client();

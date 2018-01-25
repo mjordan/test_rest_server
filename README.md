@@ -109,16 +109,17 @@ The test:
 namespace mjordan\TestRestServer;
 
 use mjordan\TestRestServer\TestRestServer;
-use mjordan\TestRestServer\Sample;
+use mjordan\TestRestServer\SampleClass;
 
-class ClassTest extends \PHPUnit\Framework\TestCase
+class SampleClassTest extends \PHPUnit\Framework\TestCase
 {
     public function testExample()
     {
         $this->server = new TestRestServer('/testing/foo', 200);
         $this->server->start();
- 
-        $sample = new Sample();
+
+        // The REST client is within the SampleClass class. 
+        $sample = new SampleClass();
         $sample->request();
 
         $this->assertEquals('bar', $sample->foo);
@@ -128,12 +129,18 @@ class ClassTest extends \PHPUnit\Framework\TestCase
 
 ## Using your own server templates
 
-If you pass in a full path to a Twig template as the fourth parameter to the TestRestServer(), that file will be used to return the HTTP responses:
+If you pass in a full path to a Twig template as the fourth parameter to the TestRestServer(), that template will be used to return the HTTP responses:
 
 They are Twig templates that contain PHP code. You don't need to pass any variables into the template though.
 
 ```php
-$this->server = new TestRestServer('/testing/foo', 201, array('X-Authorization-User: foo:bar'), 'Is this thing on?', $path_to_template);
+$uri = '/testing/foo';
+$code = 201;
+$headers = array('X-Authorization-User: foo:bar');
+$body = '';
+$path_to_template = '/tmp/my_server_template.tpl';
+
+$this->server = new TestRestServer($uri, $code, $headers, $body, $path_to_template);
 ```
 
 This template doesn't need to use the first three parameters, although it can:
@@ -144,8 +151,8 @@ This template doesn't need to use the first three parameters, although it can:
 // This is actually a Twig template with no Twig variables.
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    // Some logic goes here to generate the response code, body or headers based
-    // on $_SERVER variables.
+    // Some logic goes here to generate the response code, body or
+    // headers based on $_SERVER variables.
 
     http_response_code(200);
     header("Content-Type: application/json");
@@ -153,8 +160,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Some logic goes here to generate the response code, body or headers based
-    // on $_SERVER variables.
+    // Some logic goes here to generate the response code, body or
+    // headers based on $_SERVER variables.
 
     http_response_code(201);
     header("Content-Type: application/json");
