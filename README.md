@@ -1,7 +1,6 @@
 # Test REST Server
 
-Simple utility class for creating a local web server suitable for testing REST clients. It uses PHP's built-in web server to provide HTTP responses complete with status code, headers, and body. You provide the details of the expected response in your PHPUnit test, which your client-under-test has complete access to. You can also add complex logic to your test server using "templates".
-
+Simple utility class for creating a local web server suitable for testing REST clients. It uses PHP's built-in web server to provide HTTP responses complete with status code, headers, and body. You provide the details of the expected response when you instantiate the server in your PHPUnit test. Your client-under-test has complete access to this response. You can also add complex logic to your test server using "templates".
 
 ## Requirements
 
@@ -30,6 +29,19 @@ and within a composer.json file:
 
 ## Usage
 
+To use this test server, you create an instance of `TestRestServer`, which takes four paramameters:
+
+* URI (string): A path releative to the root of the server. The URI is not used by the default server template, but if you need a server that does respond differently to different incoming URIs, you can use a custom template that inspects the value of `$_SERVER['REQUEST_URI']` and responds accordingly.
+* Response code (int): 200, 201, 401, etc.
+* Headers (optional; array of strings): Any headers you want the server to include in the response.
+* Body (optional; string): The content of the response body.
+* Path to template (optional; string): The full path to your custom server (Twig) template file.
+
+```php
+$this->server = new TestRestServer('/testing/foo', 201, array('Content-Type: text/plain'), 'Is this thing on?');
+```
+HTTP clients then hit the server, which responds with the values you passed it.
+
 ### A basic example
 
 ```php
@@ -39,15 +51,17 @@ namespace mjordan\TestRestServer;
 
 use mjordan\TestRestServer\TestRestServer;
 use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Exception\RequestException;
 
+// PHPUnit is not the only test tool this will work with. Any PHP test tool is OK.
 class ExampleTest extends \PHPUnit\Framework\TestCase
 {
     public function testExample()
     {
-        $this->server = new TestRestServer('/testing/foo', 201, array('X-Authorization-User: foo:bar'), 'Is this thing on?');
+        $this->server = new TestRestServer('/testing/foo', 201, array('Content-Type: text/plain'), 'Is this thing on?');
+        // You can pass a port number into start() if you want. The default is 8001.
         $this->server->start();
 
+        // Works with non-Guzzle clients too. It's real HTTP!
         $client = new \GuzzleHttp\Client();
         $response = $client->post('http://localhost:8001//testing');
         $response_body = (string) $response->getBody();
@@ -129,21 +143,22 @@ class SampleClassTest extends \PHPUnit\Framework\TestCase
 
 ## Using your own server templates
 
-If you pass in a full path to a Twig template as the fourth parameter to the TestRestServer(), that template will be used to return the HTTP responses:
+You can set your test server's template using `$server->template($path);`. The value should be the full file path to a template file. The template itself is a Twig template that outputs PHP code.
 
-They are Twig templates that contain PHP code. You don't need to pass any variables into the template though.
+* You can do whatever you want within that code.
+* You don't need to pass a URI, response code, headers, or body valeus into the template, but you can if you want. Within the template they will be accessible as:
+  * `headers` (array)
+  * `code` (int)
+  * `body` (string)
 
 ```php
 $uri = '/testing/foo';
 $code = 201;
-$headers = array('X-Authorization-User: foo:bar');
-$body = '';
+$headers = array('Content-Type: text/plain');
 $path_to_template = '/tmp/my_server_template.tpl';
 
-$this->server = new TestRestServer($uri, $code, $headers, $body, $path_to_template);
+$this->server = new TestRestServer($uri, $code, $headers, '', $path_to_template);
 ```
-
-This template doesn't need to use the first three parameters, although it can:
 
 ```
 <?php
