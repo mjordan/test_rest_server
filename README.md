@@ -1,6 +1,6 @@
 # Test REST Server
 
-Stupid simple utility class for creating a local web server suitable for testing REST clients. It starts PHP's built-in web server, which provides an HTTP response complete with status code, headers, and body. You provide these in your PHPUnit test, and then check to make sure you client does what you expect.
+Simple utility class for creating a local web server suitable for testing REST clients. It uses PHP's built-in web server to provide HTTP responses complete with status code, headers, and body. You provide the details of the expected response in your PHPUnit test, which your client-under-test has complete access to. You can also add complex logic to your test server using "templates".
 
 
 ## Requirements
@@ -10,21 +10,21 @@ Stupid simple utility class for creating a local web server suitable for testing
 
 ## Installation
 
-1. `git https://github.com/mjordan/irc.git`
-1. `cd irc`
+1. `git https://github.com/mjordan/test_rest_server.git`
+1. `cd test_rest_server`
 1. `php composer.phar install` (or equivalent on your system, e.g., `./composer install`)
 
 Or, use composer:
 
 ```
-composer require mjordan/irc
+composer require mjordan/test_rest_server
 ```
 
 and within a composer.json file:
 
 ```javascript
     "require": {
-        "mjordan/irc": "dev-master"
+        "mjordan/test_rest_server": "dev-master"
     }
 ```
 
@@ -69,8 +69,62 @@ OK (1 test, 2 assertions)
 
 ### A more realistic example
 
-Testing classes that contain REST calls.
+The real usefulness of a test server is it can be used to test classes that contain REST clients.
 
+```php
+<?php
+
+namespace mjordan\TestRestServer;
+
+use GuzzleHttp\Client as GuzzleClient;
+
+/**
+ * Test REST Server Sample Class.
+ */
+class Sample
+{
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->client = new GuzzleClient();
+    }
+
+    public function request()
+    {
+        $response = $this->client->get('http://localhost:8001/somepath');
+        if ($response->getStatusCode() == 200) {
+            $this->foo = 'bar';
+        }
+    }
+}
+```
+
+The test:
+
+```php
+<?php
+
+namespace mjordan\TestRestServer;
+
+use mjordan\TestRestServer\TestRestServer;
+use mjordan\TestRestServer\Sample;
+
+class ClassTest extends \PHPUnit\Framework\TestCase
+{
+    public function testExample()
+    {
+        $this->server = new TestRestServer('/testing/foo', 200);
+        $this->server->start();
+ 
+        $sample = new Sample();
+        $sample->request();
+
+        $this->assertEquals('bar', $sample->foo);
+    }
+}
+```
 
 ## Using your own server templates
 

@@ -6,7 +6,7 @@ use Cocur\BackgroundProcess\BackgroundProcess;
 use Twig\Twig;
 
 /**
- * Islandora REST Client TestRestServer class.
+ * Test REST Server TestRestServer class.
  */
 class TestRestServer
 {
