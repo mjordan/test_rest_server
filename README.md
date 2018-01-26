@@ -31,7 +31,7 @@ and within a composer.json file:
 
 To use this test server, you create an instance of `TestRestServer`, which takes four paramameters:
 
-* URI (string): A path releative to the root of the server. The URI is ignored by the default server template, but it is useful to provide one as a form of in-code documentation for your test. If you need a server that needs to respond differently to different incoming URIs, you can use a custom template that inspects the value of `$_SERVER['REQUEST_URI']` and responds accordingly.
+* URI (string): A path relative to the root of the server. The URI is ignored by the default server template, but it is useful to provide one as a form of in-code documentation for your test. If you need a server that has to respond differently to different URIs, you can use a custom template that inspects the value of `$_SERVER['REQUEST_URI']` and responds accordingly.
 * Response code (int): 200, 201, 401, etc.
 * Headers (optional; array of strings): Any headers you want the server to include in the response.
 * Body (optional; string): The content of the response body.
@@ -62,7 +62,9 @@ class ExampleTest extends \PHPUnit\Framework\TestCase
         $this->server->start();
 
         $client = new \GuzzleHttp\Client();
-        $response = $client->post('http://localhost:8001//testing');
+        // Make sure the port number in your request is the same as the
+        // one the test server is running on.
+        $response = $client->post('http://localhost:8001/testing');
         $response_body = (string) $response->getBody();
 
         $this->assertEquals('Is this thing on?', $response_body);
@@ -70,6 +72,8 @@ class ExampleTest extends \PHPUnit\Framework\TestCase
     }
 }
 ```
+
+PHPUnit's output:
 
 ```
 PHPUnit 4.8.36-1-g18e5f52 by Sebastian Bergmann and contributors.

@@ -6,16 +6,15 @@ use mjordan\TestRestServer\TestRestServer;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\RequestException;
 
-class ExampleTest extends \PHPUnit\Framework\TestCase
+class BasicTest extends \PHPUnit\Framework\TestCase
 {
-    public function testExample()
+    public function testBasic()
     {
-        $headers = array('X-Authorization-User: foo:bar');
-        $this->server = new TestRestServer('/testing/foo', 201, $headers, 'Is this thing on?');
+        $this->server = new TestRestServer('/testing/foo', 201, array(), 'Is this thing on?');
         $this->server->start();
 
         $client = new \GuzzleHttp\Client();
-        $response = $client->post('http://localhost:8001//testing');
+        $response = $client->post('http://localhost:8001/testing');
         $response_body = (string) $response->getBody();
 
         $this->assertEquals('Is this thing on?', $response_body);
