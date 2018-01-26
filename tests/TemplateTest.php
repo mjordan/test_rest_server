@@ -12,7 +12,8 @@ class TemplateTest extends \PHPUnit\Framework\TestCase
     {
         // We pass in a response code of 200 but our template is going to return 201.
         $this->server = new TestRestServer('/testing/foo', 200, array(), 'Hi!');
-        $template_path = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'my_server_template.tpl';
+        $template_path = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'assets' .
+            DIRECTORY_SEPARATOR . 'my_server_template.tpl';
         $this->server->start('8001', $template_path);
 
         $client = new \GuzzleHttp\Client();
