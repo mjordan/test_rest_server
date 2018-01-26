@@ -16,7 +16,7 @@ Simple utility class for creating a local web server suitable for testing REST c
 Or, use composer:
 
 ```
-composer require mjordan/test_rest_server
+composer require mjordan/test_rest_server dev-master
 ```
 
 and within a composer.json file:
