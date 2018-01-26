@@ -1,6 +1,6 @@
 # Test REST Server
 
-Simple utility class for creating a local web server suitable for testing REST clients. It uses PHP's built-in web server to provide HTTP responses complete with status code, headers, and body. You provide the details of the expected response when you instantiate the server in your PHPUnit test. Your client-under-test has complete access to this response. You can also add complex logic to your test server using "templates".
+Simple utility class for creating a local web server suitable for testing REST clients. It uses PHP's built-in web server to provide HTTP responses complete with status code, headers, and body. You provide the details of the expected response when you instantiate the server in your PHPUnit (or SimpleTest, etc.) test. Your client-under-test has complete access to this response. You can also add complex logic to your test server using "templates".
 
 ## Requirements
 
@@ -31,18 +31,17 @@ and within a composer.json file:
 
 To use this test server, you create an instance of `TestRestServer`, which takes four paramameters:
 
-* URI (string): A path releative to the root of the server. The URI is not used by the default server template, but if you need a server that does respond differently to different incoming URIs, you can use a custom template that inspects the value of `$_SERVER['REQUEST_URI']` and responds accordingly.
+* URI (string): A path releative to the root of the server. The URI is ignored by the default server template, but it is useful to provide one as a form of in-code documentation for your test. If you need a server that needs to respond differently to different incoming URIs, you can use a custom template that inspects the value of `$_SERVER['REQUEST_URI']` and responds accordingly.
 * Response code (int): 200, 201, 401, etc.
 * Headers (optional; array of strings): Any headers you want the server to include in the response.
 * Body (optional; string): The content of the response body.
-* Path to template (optional; string): The full path to your custom server (Twig) template file.
 
 ```php
 $this->server = new TestRestServer('/testing/foo', 201, array('Content-Type: text/plain'), 'Is this thing on?');
 ```
-HTTP clients then hit the server, which responds with the values you passed it.
+After you instantiate your server, you start it (using the `start()` method). At this point, HTTP clients then hit the server, which responds with the values you passed it.
 
-### A basic example
+### A basic example using PHPUnit
 
 ```php
 <?php
@@ -50,6 +49,7 @@ HTTP clients then hit the server, which responds with the values you passed it.
 namespace mjordan\TestRestServer;
 
 use mjordan\TestRestServer\TestRestServer;
+// Works with non-Guzzle clients too. It's a real HTTP server!
 use GuzzleHttp\Client as GuzzleClient;
 
 // PHPUnit is not the only test tool this will work with. Any PHP test tool is OK.
@@ -61,7 +61,6 @@ class ExampleTest extends \PHPUnit\Framework\TestCase
         // You can pass a port number into start() if you want. The default is 8001.
         $this->server->start();
 
-        // Works with non-Guzzle clients too. It's real HTTP!
         $client = new \GuzzleHttp\Client();
         $response = $client->post('http://localhost:8001//testing');
         $response_body = (string) $response->getBody();
@@ -81,14 +80,16 @@ Time: 5.08 seconds, Memory: 7.25MB
 OK (1 test, 2 assertions)
 ```
 
-### A more realistic example
+### A more useful example
 
-The real usefulness of a test server is it can be used to test classes that contain REST clients.
+The real usefulness of a test server is that it can be used to test classes that contain REST clients.
+
+Imagine a simple class, Sample. It has one method, `request()`, which uses a REST client to determine the value of a property `foo`:
 
 ```php
 <?php
 
-namespace mjordan\TestRestServer;
+namespace mjordan\Sample;
 
 use GuzzleHttp\Client as GuzzleClient;
 
@@ -123,33 +124,36 @@ The test:
 namespace mjordan\TestRestServer;
 
 use mjordan\TestRestServer\TestRestServer;
-use mjordan\TestRestServer\SampleClass;
+use mjordan\Sample\Sample;
 
-class SampleClassTest extends \PHPUnit\Framework\TestCase
+class ClassTest extends \PHPUnit\Framework\TestCase
 {
     public function testExample()
     {
         $this->server = new TestRestServer('/testing/foo', 200);
         $this->server->start();
-
-        // The REST client is within the SampleClass class. 
-        $sample = new SampleClass();
+ 
+        $sample = new Sample();
         $sample->request();
 
         $this->assertEquals('bar', $sample->foo);
     }
 }
+
 ```
 
 ## Using your own server templates
 
-You can set your test server's template by passing in a path to a template as the second parameter to `$server->start()`. The value should be the full file path to a template file. The template itself is a Twig template that outputs PHP code.
+You can use a custom test server template by passing in a path to a template as the second parameter to `$server->start()` (the first parameter is the port number that the server will run on, by default 8001). The value of the path parameter should be the full path to a Twig template file that outputs PHP code.
 
-* You can do whatever you want within that code.
+
+* You can do whatever you want within that PHP code.
 * You don't need to pass a URI, response code, headers, or body valeus into the template, but you can if you want. Within the template they will be accessible as:
   * `headers` (array)
   * `code` (int)
   * `body` (string)
+
+The URI that the server is responding to is available in `$_SERVER['REQUEST_URI']`.
 
 ```php
 $uri = '/testing/foo';
@@ -164,24 +168,24 @@ $this->server->start('8001', $path_to_template);
 ```
 <?php
 
-// This is actually a Twig template with no Twig variables.
+// This is actually a Twig template which uses one variable, `body`.
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+if ($_SERVER['REQUEST_METHOD'] == 'GET' && $_SERVER['REQUEST_URI'] == '/foo/bar') {
     // Some logic goes here to generate the response code, body or
     // headers based on $_SERVER variables.
 
     http_response_code(200);
     header("Content-Type: application/json");
-    print json_encode($body);
+    print json_encode({{ body }});
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_SERVER['REQUEST_URI'] == '/foo/bar') {
     // Some logic goes here to generate the response code, body or
     // headers based on $_SERVER variables.
 
     http_response_code(201);
     header("Content-Type: application/json");
-    print json_encode($body);
+    print json_encode({{ body }});
 }
 ```
 
