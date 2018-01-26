@@ -191,7 +191,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_SERVER['REQUEST_URI'] == '/foo/bar
 
 ## Development and feedback
 
-Still in development. Once it's past the proof of concept stage, I'd be happy to take PRs, etc.
+Suggestions, use cases, and bug reports welcome. If you want to to open a pull request, please open an issue first.
+
+To run tests, run `composer tests`. To run code style checks, run `composer style`.
 
 ## License
 
