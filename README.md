@@ -165,26 +165,18 @@ $this->server = new TestRestServer($uri, $code, $headers, '');
 $this->server->start('8001', $path_to_template);
 ```
 
+This is an example of a Twig template for a server that uses one variable, `body`:
+
 ```
 <?php
 
-// This is actually a Twig template which uses one variable, `body`.
-
-if ($_SERVER['REQUEST_METHOD'] == 'GET' && $_SERVER['REQUEST_URI'] == '/foo/bar') {
-    // Some logic goes here to generate the response code, body or
-    // headers based on $_SERVER variables.
-
-    http_response_code(200);
-    header("Content-Type: application/json");
-    print json_encode({{ body }});
-}
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_SERVER['REQUEST_URI'] == '/foo/bar') {
-    // Some logic goes here to generate the response code, body or
+    // Some logic goes here to generate the response code or
     // headers based on $_SERVER variables.
 
     http_response_code(201);
     header("Content-Type: application/json");
+    // We get the body of the request from our TestRestServer instance.
     print json_encode({{ body }});
 }
 ```
