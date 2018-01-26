@@ -39,7 +39,7 @@ To use this test server, you create an instance of `TestRestServer`, which takes
 ```php
 $this->server = new TestRestServer('/testing/foo', 201, array('Content-Type: text/plain'), 'Is this thing on?');
 ```
-After you instantiate your server, you start it (using the `start()` method). At this point, HTTP clients then hit the server, which responds with the values you passed it.
+After you instantiate your server, you start it (using the `start()` method). At this point, HTTP clients can hit the server, which will respond with the values you passed it.
 
 ### A basic example using PHPUnit
 
