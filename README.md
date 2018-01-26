@@ -29,7 +29,7 @@ and within a composer.json file:
 
 ## Usage
 
-To use this test server, you create an instance of `TestRestServer`, which takes four paramameters:
+To use this test server, you create an instance of `TestRestServer`, which takes four parameters:
 
 * URI (string): A path relative to the root of the server. The URI is ignored by the default server template, but it is useful to provide one as a form of in-code documentation for your test. If you need a server that has to respond differently to different URIs, you can use a custom template that inspects the value of `$_SERVER['REQUEST_URI']` and responds accordingly.
 * Response code (int): 200, 201, 401, etc.
@@ -146,7 +146,7 @@ class ClassTest extends \PHPUnit\Framework\TestCase
 
 ```
 
-## Using your own server templates
+## Using server templates
 
 You can use a custom test server template by passing in a path to a template as the second parameter to `$server->start()` (the first parameter is the port number that the server will run on, by default 8001). The value of the path parameter should be the full path to a Twig template file that outputs PHP code.
 
@@ -193,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_SERVER['REQUEST_URI'] == '/foo/bar
 
 Suggestions, use cases, and bug reports welcome. If you want to to open a pull request, please open an issue first.
 
-To run tests, run `composer tests`. To run code style checks, run `composer style`.
+To run tests, run `composer tests`. To run PSR2 code style checks, run `composer style`.
 
 ## License
 
