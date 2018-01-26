@@ -143,7 +143,7 @@ class SampleClassTest extends \PHPUnit\Framework\TestCase
 
 ## Using your own server templates
 
-You can set your test server's template using `$server->template($path);`. The value should be the full file path to a template file. The template itself is a Twig template that outputs PHP code.
+You can set your test server's template by passing in a path to a template as the second parameter to `$server->start()`. The value should be the full file path to a template file. The template itself is a Twig template that outputs PHP code.
 
 * You can do whatever you want within that code.
 * You don't need to pass a URI, response code, headers, or body valeus into the template, but you can if you want. Within the template they will be accessible as:
@@ -157,7 +157,8 @@ $code = 201;
 $headers = array('Content-Type: text/plain');
 $path_to_template = '/tmp/my_server_template.tpl';
 
-$this->server = new TestRestServer($uri, $code, $headers, '', $path_to_template);
+$this->server = new TestRestServer($uri, $code, $headers, '');
+$this->server->start('8001', $path_to_template);
 ```
 
 ```
