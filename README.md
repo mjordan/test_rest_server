@@ -4,7 +4,7 @@ Simple utility class for creating a local web server suitable for testing REST c
 
 ## Requirements
 
-* PHP 5.5.0 or higher.
+* PHP 5.5.0 or higher (tested on PHP 5.6, 7.0, and 7.1).
 * [Composer](https://getcomposer.org)
 
 ## Installation
@@ -86,7 +86,7 @@ OK (1 test, 2 assertions)
 
 ### A more useful example
 
-The real usefulness of a test server is that it can be used to test classes that contain REST clients.
+The real usefulness of a test server is that it can be used to test classes that contain REST clients. In other words, you are not testing the client directly, but you are testing code that uses an HTTP client.
 
 Imagine a simple class, Sample. It has one method, `request()`, which uses a REST client to determine the value of a property `foo`:
 
