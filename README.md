@@ -1,4 +1,4 @@
-# Test REST Server
+# Test REST Server [![Build Status](https://travis-ci.org/mjordan/test_rest_server.svg?branch=master)](https://travis-ci.org/mjordan/test_rest_server)
 
 Simple utility class for creating a local web server suitable for testing REST clients. It uses PHP's built-in web server to provide HTTP responses complete with status code, headers, and body. You provide the details of the expected response when you instantiate the server in your PHPUnit (or SimpleTest, etc.) test. Your client-under-test has complete access to this response. You can also add complex logic to your test server using "templates".
 
